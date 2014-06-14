@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+</head>
+<body>
+    <div style="width: 1000px; height: 500px; float: left;border: solid 1px #CCC" ondrop="drop(event)" ondragover="allowDrop(event)">
+        Components
+
+        <img id="imgActividad" src="img/actividad.png" draggable="true" ondragstart="drag(event)" >
+
+
+        <canvas id="workAreaCanvas" ondrop="dropCanvas(event)" width="800px" height="400px" style="border: solid 1px #CAFAAA"></canvas>
+
+    </div>
+
+    <script src="js/jquery.js"></script>
+    <script src="js/process.js"></script>
+    <script src="js/activity.js"></script>
+</body>
+</html>
