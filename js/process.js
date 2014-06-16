@@ -6,7 +6,10 @@ var lineStarted = false;
 var mouseX;
 var mouseY;
 
-var activities = [];
+var processModel;
+var canvas;
+
+var selectedActivity = null;
 
 function drop(ev) {
     ev.preventDefault();
@@ -19,7 +22,8 @@ function createActivity(x, y, width, height){
 
     var a = new activity_js(x, y, width, height);
     a.paint();
-    activities.push(a);
+    processModel.addActivity(a);
+
 }
 
 function dropCanvas(ev) {
@@ -29,7 +33,7 @@ function dropCanvas(ev) {
     console.log('dropCanvas: ' + data);
     console.log(ev);
 
-    createActivity(ev.x - canvas.offsetLeft-70, ev.y- canvas.offsetTop-28, 147, 56);
+    createActivity(ev.x - canvas.offsetLeft-70, ev.y- canvas.offsetTop-30, 145, 65);
 }
 
 function drag(ev) {
@@ -44,7 +48,10 @@ function allowDrop(ev) {
 
 $(document).ready(function(){
 
+    processModel = new processModel_js();
     canvas = document.getElementById('workAreaCanvas');
+
+    $("#propiedades").css("visibility", "hidden");
 
     var context = canvas.getContext("2d");
     context.lineWidth = 1;
@@ -65,9 +72,49 @@ $(document).ready(function(){
 
     console.log(context.lineCap + " " + context.lineWidth + " " +context.lineJoin);
 
+    $("#saveProperties").on("click", function(){
+
+        selectedActivity.setName($("#objectName").val());
+
+    });
+
     $('#workAreaCanvas').mousedown(function(e) {
 
-        if(lineStarted){
+        var activity = processModel.getSelectedActivity(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
+        if(activity != null){
+
+            if (selectedActivity == null){
+
+                selectedActivity  = activity;
+                selectedActivity.select();
+
+            }else{
+
+                if(selectedActivity == activity){
+
+                    selectedActivity.unselect();
+                    selectedActivity = null;
+                }else{
+                    selectedActivity.unselect();
+                    selectedActivity  = activity;
+                    selectedActivity.select();
+                }
+            }
+        }else{
+            if(selectedActivity != null){
+                selectedActivity.unselect();
+                selectedActivity = null;
+            }
+        }
+
+        if(selectedActivity!=null){
+            $("#propiedades").css("visibility", "visible");
+            $("#objectName").val(selectedActivity.getName());
+        }else{
+            $("#propiedades").css("visibility", "hidden");
+        }
+/*
+        if (lineStarted) {
 
             var context = canvas.getContext("2d");
             context.lineWidth = 1;
@@ -82,7 +129,7 @@ $(document).ready(function(){
         mouseX = e.pageX - this.offsetLeft;
         mouseY = e.pageY - this.offsetTop;
 
-        lineStarted = !lineStarted;
+        lineStarted = !lineStarted;*/
 
     });
 
