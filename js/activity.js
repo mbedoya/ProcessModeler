@@ -9,15 +9,14 @@ var activity_js = function(x, y, w, h){
     this.y = y;
     this.w = w;
     this.h = h;
-
-    var name = "";
+    this.name = "";
     var context = document.getElementById('workAreaCanvas').getContext("2d");
 
     this.setName = function(name){
         this.name = name;
 
         console.log("setting name:" + this.name);
-        paintName(this.name);
+        paintName(this.name, this.x, this.y);
     }
 
     this.getName = function(){
@@ -25,12 +24,26 @@ var activity_js = function(x, y, w, h){
     }
 
     this.paint = function(){
+
         context.strokeStyle = "rgb(255, 0, 0)";
         context.fillStyle = "rgba(255, 255, 0, .5)";
-        roundRect(context, x, y, w, h, 10, true, true);
+        roundRect(context, this.x, this.y, w, h, 10, true, true);
     }
 
-    function paintName(name){
+    this.move = function(x, y){
+
+        console.log("moving activity from " + this.x + ","+ this.y + " to " + x + ","+ y);
+        context.clearRect(this.x-7, this.y-7, w+14, h+14);
+
+        this.x = x;
+        this.y = y;
+
+        this.paint();
+        paintName(this.name, this.x, this.y);
+        this.select();
+    }
+
+    function paintName(name, x, y){
 
         context.clearRect(x+7, y+7, w-14, h-14);
         context.fillStyle = "rgba(255, 255, 0, .5)";
@@ -46,14 +59,13 @@ var activity_js = function(x, y, w, h){
     this.select = function() {
 
         context.strokeStyle = "#768A8A";
-        dashedRoundRect(context, x-5, y-5, w+10, h+10, 10, false, true);
+        dashedRoundRect(context, this.x-5, this.y-5, w+10, h+10, 10, false, true);
     }
 
     this.unselect = function() {
-
-        context.clearRect(x-7, y-7, w+14, h+14);
+        context.clearRect(this.x-7, this.y-7, w+14, h+14);
         this.paint();
-        paintName(this.name);
+        paintName(this.name, this.x, this.y);
     }
 
     this.insideMe = function(x, y) {
