@@ -12,6 +12,8 @@ var canvas;
 var selectedActivity = null;
 var buttonPressed = false;
 
+var ctrlPressed = false;
+
 function drop(ev) {
     ev.preventDefault();
     var data = ev.dataTransfer.getData("Text");
@@ -25,6 +27,7 @@ function createActivity(x, y, width, height){
     a.paint();
     processModel.addActivity(a);
 
+    return a;
 }
 
 function dropCanvas(ev) {
@@ -34,7 +37,16 @@ function dropCanvas(ev) {
     console.log('dropCanvas: ' + data);
     console.log(ev);
 
-    createActivity(ev.x - canvas.offsetLeft-70, ev.y- canvas.offsetTop-30, 145, 65);
+    act = createActivity(ev.x - canvas.offsetLeft-70, ev.y- canvas.offsetTop-30, 145, 65);
+    if(selectedActivity != null){
+        selectedActivity.unselect();
+    }
+    selectedActivity = act;
+    selectedActivity.select();
+
+    $("#propiedades").css("visibility", "visible");
+    $("#objectName").val("");
+    $("#objectName").focus();
 }
 
 function drag(ev) {
@@ -58,20 +70,100 @@ $(document).ready(function(){
     context.lineWidth = 1;
     context.strokeStyle = '#CCC';
 
-    /*context.beginPath();
-    context.moveTo(120, 0);
-    context.lineTo(120, 400);
-    context.stroke();*/
+    $(document).on("keyup", function(e){
 
-    /*context.font = "11px Arial";
-    context.strokeStyle = 'black';
-    context.strokeRect(10, 10, 100, 50);
-    context.fillText("Actividad", 30, 40);*/
+        var keyprocessed = false;
 
-    /*image = document.getElementById('imgActividad');
-    context.drawImage(image, 5, 130);*/
+        if(selectedActivity != null){
 
-    console.log(context.lineCap + " " + context.lineWidth + " " +context.lineJoin);
+            //Ctrl
+            if(e.keyCode == 17){
+
+                ctrlPressed = false;
+                e.preventDefault();
+
+            }else {
+
+                if(e.keyCode == 38){
+                    e.preventDefault();
+                    selectedActivity.moveUp();
+                    keyprocessed = true;
+                }else{
+
+                    if(e.keyCode == 40){
+                        e.preventDefault();
+                        selectedActivity.moveDown();
+                        keyprocessed = true;
+                    }else{
+
+                        if(e.keyCode == 37){
+                            e.preventDefault();
+                            selectedActivity.moveLeft();
+                            keyprocessed = true;
+                        }else{
+                            if(e.keyCode == 39){
+                                e.preventDefault();
+                                selectedActivity.moveRight();
+                                keyprocessed = true;
+                            }
+                        }
+                    }
+                }
+
+            }
+
+
+
+        }
+
+        if(keyprocessed){
+            //e.preventDefault();
+            console.log("default prevented");
+        }
+    });
+
+    $(document).on("keydown", function(e){
+
+        if(selectedActivity != null){
+
+            //Ctrl
+            if(e.keyCode == 17){
+
+                ctrlPressed = true;
+                e.preventDefault();
+
+            }else{
+
+                if(e.keyCode == 38){
+                    e.preventDefault();
+                    //selectedActivity.moveUp();
+                    keyprocessed = true;
+                }else{
+
+                    if(e.keyCode == 40){
+                        e.preventDefault();
+                        //selectedActivity.moveDown();
+                        keyprocessed = true;
+                    }else{
+
+                        if(e.keyCode == 37){
+                            e.preventDefault();
+                            //selectedActivity.moveLeft();
+                            keyprocessed = true;
+                        }else{
+                            if(e.keyCode == 39){
+                                e.preventDefault();
+                                //selectedActivity.moveRight();
+                                keyprocessed = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+
+        }
+    });
 
     $("#saveProperties").on("click", function(){
        selectedActivity.setName($("#objectName").val());
@@ -94,8 +186,6 @@ $(document).ready(function(){
 
         buttonPressed = false;
 
-        console.log("mouseup");
-
         if( Math.abs(mouseX- (e.pageX - this.offsetLeft)) >= 3 ||
             Math.abs(mouseY- (e.pageY - this.offsetTop)) >= 3){
 
@@ -108,16 +198,13 @@ $(document).ready(function(){
     $('#workAreaCanvas').mousedown(function(e) {
 
         buttonPressed = true;
-
-        console.log("mousedown");
+        var linked = false;
 
         mouseX = e.pageX - this.offsetLeft;
         mouseY = e.pageY - this.offsetTop;
 
         var activity = processModel.getSelectedActivity(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
         if(activity != null){
-
-            console.log("activity selected");
 
             $('#workAreaCanvas').css('cursor', 'move');
 
@@ -129,14 +216,29 @@ $(document).ready(function(){
             }else{
 
                 if(selectedActivity != activity){
-                    selectedActivity.unselect();
-                    selectedActivity  = activity;
-                    selectedActivity.select();
+
+                    //Link Activities
+                    if(ctrlPressed){
+
+                        selectedActivity.linkTo(activity);
+                        linked = true;
+
+                    }else{
+
+                        selectedActivity.unselect();
+                        selectedActivity  = activity;
+                        selectedActivity.select();
+                    }
+
                 }
             }
 
-            $("#propiedades").css("visibility", "visible");
-            $("#objectName").val(selectedActivity.getName());
+            if(!linked){
+
+                $("#propiedades").css("visibility", "visible");
+                $("#objectName").val(selectedActivity.getName());
+            }
+
 
         }else{
 
@@ -149,23 +251,6 @@ $(document).ready(function(){
 
             $("#propiedades").css("visibility", "hidden");
         }
-
-/*
-        if (lineStarted) {
-
-            var context = canvas.getContext("2d");
-            context.lineWidth = 1;
-            context.strokeStyle = 'black';
-
-            context.beginPath();
-            context.moveTo(mouseX, mouseY);
-            context.lineTo(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
-            context.stroke();
-        }
-
-
-
-        lineStarted = !lineStarted;*/
 
     });
 

@@ -10,6 +10,8 @@ var activity_js = function(x, y, w, h){
     this.w = w;
     this.h = h;
     this.name = "";
+    this.parent;
+    this.next;
     var context = document.getElementById('workAreaCanvas').getContext("2d");
 
     this.setName = function(name){
@@ -41,6 +43,72 @@ var activity_js = function(x, y, w, h){
         this.paint();
         paintName(this.name, this.x, this.y);
         this.select();
+    }
+
+    this.moveUp = function(){
+
+        context.clearRect(this.x-7, this.y-7, w+14, h+14);
+
+        if(this.y>0){
+            this.y = this.y-1;
+        }
+
+        this.paint();
+        paintName(this.name, this.x, this.y);
+        this.select();
+    }
+
+    this.moveDown = function(){
+
+        context.clearRect(this.x-7, this.y-7, w+14, h+14);
+
+        this.y = this.y+1;
+
+        this.paint();
+        paintName(this.name, this.x, this.y);
+        this.select();
+    }
+
+    this.moveLeft = function(){
+
+        context.clearRect(this.x-7, this.y-7, w+14, h+14);
+
+        this.x = this.x-1;
+
+        this.paint();
+        paintName(this.name, this.x, this.y);
+        this.select();
+    }
+
+    this.moveRight = function(){
+
+        context.clearRect(this.x-7, this.y-7, w+14, h+14);
+
+        this.x = this.x+1;
+
+        this.paint();
+        paintName(this.name, this.x, this.y);
+        this.select();
+    }
+
+    this.linkTo = function(activity){
+
+        this.next = activity;
+        activity.parent = this;
+
+        context.strokeStyle = "#768A8A";
+        //Main Line
+        context.moveTo(this.x+this.w, this.y+this.h/2);
+        context.lineTo(activity.x, activity.y + activity.h/2);
+
+        context.moveTo(activity.x-10, activity.y + activity.h/2-10);
+        context.lineTo(activity.x, activity.y + activity.h/2);
+
+        context.moveTo(activity.x-10, activity.y + activity.h/2+10);
+        context.lineTo(activity.x, activity.y + activity.h/2);
+
+
+        context.stroke();
     }
 
     function paintName(name, x, y){
